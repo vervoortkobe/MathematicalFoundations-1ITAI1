@@ -1,0 +1,136 @@
+------------------------------------------
+Planning Presentatie Logistische Regressie
+------------------------------------------
+
+Keuze notebook: https://www.kaggle.com/code/keenoglanville/a-fool-s-complete-guide-to-logistic-regression
+
+------
+Agenda
+------
+-Jimmy
+	-Inleiding
+		-Waarom notebook gekozen
+		-Wat doet het notebook, welk probleem lost het op
+		-Waarom is dit relevant in IT
+		-Wat is het thema
+	-Theorie doen van logistische regressie
+		-Wiskundige uitleg
+		-Concreet voorbeeld + aanpassen parameters voor logistische regressie (b0 en b1) -> handson
+		-Visuele uitleg = PPT
+	-Handson moment
+	-Daarna correlation matrix
+
+Kobe
+	-Vanaf Cleanse van data
+		-One-hot encoding
+		-Verschillende modellen (Logistische regressie)
+	-Confusion matrix
+		-ROC/AUC
+		-Tonen voor elk algoritme hoe efficient het is
+	-Kritische reflectie
+		-Goed: overzicht van verschillende technieken mbt ML waarin Logistische regressie wordt gekaderd in een ML context
+		-Beperking: minder code (opgevangen door apart stukje code voor tonen logistische regressie curve + aanpassing coefficienten)
+		-Zelf geleerd:
+			-hoe logistische regressie toepassen voor classificatie
+			-hoe parameters de uitkomst beïnvloeden 
+			-hoe logistische regressie kadert in een volledige ML structuur (link naar confusion matrices en ROC/AUC)
+
+---------------------
+Logistische Regressie
+---------------------
+-Wat is de bedoeling van Logistische regressie
+-Inleidende begrippen
+	-Probabiliteit vs Odds
+		-Kans / Niet-Kans
+	-Probleem van assymetrie
+	-Uitleggen log
+	-Basisformule logisticshe regressie
+-Logistische regressie
+	-General Lineairized Models
+	-Waarom geen rechte lijn
+		-Reden: outlier verdraaid de lijn
+		-Rechte lijn zou kansen kunnen opleveren groter dan 1 of kleiner dan 0
+		-Afplatting = moeilijk te lineariseren
+		-Empirie: classificatie volgt meestal een sigmoide
+	-We lineariseren een logistische regressie zodat we lineaire regressie kunnen toepassen (multiple regression, ANOVA)
+		-We converteren de sigmoide (probabiliteit = tussen 0 en 1) naar een rechte (log(odds) = tussen -oneindig en + oneindig)
+		-log(odds) = log (p / 1-p) = logit functie  --> we krijgen nu een rechte
+	-We kunnen geen algebraische oplossing doen zoals bij lineaiere regressie
+	-Oplossing: maximum likelyhood
+		-Logistische regressie heeft geen residuals -> geen least squares
+			-Als je op de sigmoide zou werken dan zal de delta tussen y en o(p) niet voor ieder punt gelijk zijn
+				-Immers y = 0 of 1 want dit is de voorspelde classificatie
+				-P drukt de kans uit dat voor dat specifiek punt op de x positie dat y = 1 of y = 0
+			-Als je least squares toepast op een sigmoïde model:
+				-het punt zal in geval van y = 0 en y = 1 naar plus en min oneindig getrokken worden
+					-Je kan hier geen residuals op berekenen
+				-Het optimaliseren van een verliesfunctie die gebruikmaakt van een sigmoïde-activatiefunctie (logistische regressie/neurale netwerken) is niet-convex = je kunt meerdere lokale minima krijgen
+			-Logistische regressie gebruikt maximum likelihood (iteratief proces):
+				-likelihood gebaseerd op Bernoulli-verdeling
+				-geeft een mooie convexe optimalisatie
+				-leidt tot de bekende log-loss (cross-entropy)
+		-Iteratief
+		-Verschuif de sigmoide (B1 geeft hellingsgraad aan, B0 verschuift de sigmoide naar links/rechts)
+		-Bereken elke keer de likelyhood = vermenigvuldiging van elke likelyhood per punt
+	-We berekenen z values voor intercept en slope
+		-Berekening R²
+	-We kunnen ook discrete variabelen gebruiken (vb. heeft een muis een bepaald gen of niet)
+		-gelijkaardig aan de t-test
+		-p value kan eenvoudig berekend worden
+-Echter, geen consensus over berekenen van R² voor logistische regressie
+	-10-tal verschillende manieren (McFadden, Nagelkerke, Cox-Snell,...)
+	-McFadden interpretatie
+		-0 = model is niet beter dan het nulmodel
+		-1 = perfecte voorspelling
+		-Hoe dichter tegen 1, hoe beter het model classificeert
+		-Waarden tussen 0,2 en 0,4 worden vaak beschouwd als indicatief voor een zeer goede fit van het model
+
+--------------------------
+Confusion Matrix & ROC/AUC
+--------------------------
+-Resources:
+	-Cross Validation: https://www.youtube.com/watch?v=fSytzGwwBVw&feature=youtu.be
+	-Confusion Matrix: https://www.youtube.com/watch?v=Kdsp6soqA7o&feature=youtu.be
+	-Sensitivity vs Specifity: https://www.youtube.com/watch?v=vP06aMoz4v8&feature=youtu.be
+	-Bias & Variance: https://www.youtube.com/watch?v=EuBBz3bI-aA&feature=youtu.be
+	-ROC & AUC: https://www.youtube.com/watch?v=4jRBRDbJemM&feature=youtu.be
+-Aanknopingspunten:
+	-2 soorten statistische fouten: false positive & false negative
+	-False Positive: onze berekeningen detecteren iets (vb. een bepaalde samenhang van variabelen, een event,...), maar in de werkelijkheid is er géén samenhang
+		-Vb. een rookdetector: er gaat een alarm af maar er is geen rook
+	-False Negative: onze berekeningen detecteren niets (vb. een bepaalde samenhang van variabelen, een event,...) maar in de werkelijkheid is er wél iets
+		-Vb. een image recognition algoritme detecteert geen kanker maar de persoon heeft wel kanker
+	-In wetenschappelijk onderzoek zal de onderzoeker vaak een keuze dienen te maken waarop de prioriteit zal komen te liggen
+	-Soms geven we de voorkeur aan het risico dat we false positives gaan krijgen
+		-Vb. bij een branddetector hebben we liever dat deze iets te snel afgaat dan dat er geen alarm is terwijl er wel een brand is
+	-Soms geven we de voorkeur aan het risico dat we false negatives krijgen ipv false positives
+		-Vb. een rechter zal de voorkeur geven om iemands onschuld uit te spreken als deze niet zeker is van zijn zaak ipv iemand te veroordelen terwijl deze persoon misschien niets misdaan heeft (principe van onschuld tot schuld bewezen is)
+	-Er kan bias uitgaan van de wetenschapper
+		-Case: we willen weten of een bepaalde stof (vb. aspartaam) kankerverwekkend is of niet
+		-Onderzoeker van departement volksgezondheid gaat voorkeur geven aan false positives (reden: uitgangspunt is gezondheid ban mensen)
+		-Onderzoeker van voedingsindustrie gaat mogelijk voorkeur geven aan false negatives (reden: bedrijfswinsten voorop stellen)
+	-Confusion matrix gaat over dit soort fouten
+	-Sensitivity = het vermogen van een model om correcte positieve instanties te detecteren (vb. vermogen van rookdetector om rook te detecteren)
+		-TRUE positive Rate = in welke mate zal er correcte positieve events voorspeld worden
+	-Specificity = het vermogen van een model om negatieve instanties te detetceren (vb. iemand is onschuldig)
+		-TRUE negative Rate = in welke mate zal er correcte negatieve events voorspeld worden  (vb. persoon is niet schuldig)
+	-ROC/AUC = zetten van Sensitiivty/Specificty rate op een grafiek
+		-Hoe meer Area Under the Curve (AUC) hoe beter het algoritme
+		-We gaan tijdens een logistische regressie de vorm van de sigmoide aanpassen zodat deze betere voorspellingen maakt. Dit is gelijk aan het bepalen van de richtingscoëfficiënt van de rechte en het snijpunt met de Y-as bij een lineaire regressie
+		-Dit is een iteratief proces waarbij de punten elke keer anders zullen ingedeeld worden door de logistische regressie
+		-Elke poging kan men uitzetten in een confusion matrix
+		-Voor elke confusion matrix zullen we de specificity en de sensitivity berekenen
+		-We kunnen elke confusion matrix uitzetten op een 2 dimensioneel assenstelsel -> elke confusion matrix heeft een punt
+		-Deze grafiek van punten zal de ROC/AUC vormen
+	-Cross validation
+		-Opsplitsen van dataset in een training set en een test set
+		-We willen ons algoritme trainen aan de hand van data = training set
+		-Daarna willen we dit echter nog eens tegen een onafhankelijke set gaan testen
+			-Reden: we willen data onafhankelijk van onze training want als we alle data gaan gebruiken dan zal de test data uiteraard een goed resultaat zijn want we hebben deze gebruikt om het model te trainen
+			-We noemen dit data leakage
+		-Cross validation zal de dataset opsplitsen
+		-Er zullen verschillende combinaties genomen worden van training data en test data
+	-Bias & Variance
+		-Bias = in hoeverre wijkt ons model af van het ideale model dat de werkelijkheid perfect weergeeft (underfitting)
+		-Variance = in hoeverre zal een werkelijk test data scenario afwijkingen geven tov model omdat ons model overtraind is (overfitting)
+		-De onderzoeker zal een trade-off moeten maken tussen deze 2 elementen
