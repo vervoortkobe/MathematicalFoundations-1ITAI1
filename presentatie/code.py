@@ -4,18 +4,21 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 
 from sklearn.linear_model import LogisticRegression
+from sklearn.svm import SVC
+from sklearn.neural_network import MLPClassifier
 from sklearn.preprocessing import StandardScaler
 from sklearn.model_selection import train_test_split
+from sklearn.metrics import roc_curve, auc
 
-# =========================
-# 1. DATA LOADEN
-# =========================
-data = pd.read_csv("UCI_Credit_Card.csv", sep=";")
+# Load data
+data = pd.read_csv('UCI_Credit_Card.csv', sep=';')
 
+# If the first row contains the real column names, fix them
 if data.iloc[0].astype(str).tolist()[:5] == ['ID', 'LIMIT_BAL', 'SEX', 'EDUCATION', 'MARRIAGE']:
     data.columns = data.iloc[0]
     data = data.iloc[1:].reset_index(drop=True)
 
+# Standardize column names if the file uses X1, X2, ... or similar
 expected_columns = [
     'ID', 'LIMIT_BAL', 'SEX', 'EDUCATION', 'MARRIAGE', 'AGE',
     'PAY_0', 'PAY_2', 'PAY_3', 'PAY_4', 'PAY_5', 'PAY_6',
@@ -27,12 +30,24 @@ expected_columns = [
 if len(data.columns) == len(expected_columns):
     data.columns = expected_columns
 
+# Convert everything possible to numeric
 for col in data.columns:
-    data[col] = pd.to_numeric(data[col], errors="coerce")
+    data[col] = pd.to_numeric(data[col], errors='coerce')
 
-# =========================
-# 2. PREPROCESSING
-# =========================
+print(data.head())
+print(data.info())
+
+# Correlation heatmap
+numeric_data = data.select_dtypes(include=[np.number])
+corr = numeric_data.corr()
+
+plt.figure(figsize=(18, 15))
+sns.heatmap(corr, annot=True, fmt='.2f', vmin=-1.0, vmax=1.0, cmap='mako', linewidths=0.5)
+plt.title('Correlation')
+plt.tight_layout()
+plt.show()
+
+# Preprocessing
 def onehotencode(df, columndict):
     df = df.copy()
     for column, prefix in columndict.items():
@@ -43,106 +58,82 @@ def onehotencode(df, columndict):
 
 def cleaner(df):
     df = df.copy()
+
     if 'ID' in df.columns:
         df = df.drop('ID', axis=1)
 
+    # Ensure target is the last column name we expect
     target_col = 'default.payment.next.month'
-    df = onehotencode(df, {
-        'EDUCATION': 'EDU',
-        'MARRIAGE': 'MAR'
-    })
+    if target_col not in df.columns:
+        raise ValueError(f"Target column '{target_col}' not found. Check the CSV format and column names.")
+
+    df = onehotencode(
+        df,
+        {
+            'EDUCATION': 'EDU',
+            'MARRIAGE': 'MAR'
+        }
+    )
 
     y = df[target_col].copy()
     X = df.drop(target_col, axis=1).copy()
+
     X = X.apply(pd.to_numeric, errors='coerce')
     X = X.fillna(X.median(numeric_only=True))
+
     return X, y
 
 X, y = cleaner(data)
+print(X.head())
+print(y.head())
 
-# =========================
-# 3. TRAINING
-# =========================
+# Train/test split
 X_train, X_test, y_train, y_test = train_test_split(
-    X, y, train_size=0.7, random_state=1234, stratify=y
+    X, y,
+    train_size=0.7,
+    random_state=1234,
+    stratify=y
 )
 
+# Scale only on training data to avoid leakage
 scaler = StandardScaler()
 X_train = pd.DataFrame(scaler.fit_transform(X_train), columns=X_train.columns, index=X_train.index)
 X_test = pd.DataFrame(scaler.transform(X_test), columns=X_test.columns, index=X_test.index)
 
-model = LogisticRegression(max_iter=2000, random_state=1234)
-model.fit(X_train, y_train)
+# Train models
+models = {
+    LogisticRegression(max_iter=2000, random_state=1234): "Logistic Regression",
+    SVC(random_state=1234): "Support Vector Machine",
+    MLPClassifier(max_iter=1000, random_state=1234): "Neural Network"
+}
 
-print(f"Train accuracy: {model.score(X_train, y_train)*100:.2f}%")
-print(f"Test accuracy:  {model.score(X_test, y_test)*100:.2f}%")
+for model in models.keys():
+    model.fit(X_train, y_train)
 
-# =========================
-# 4. INTERACTIEVE DEMO
-#    2 parameters aanpassen
-# =========================
-"""
-Scenario	LIMIT_BAL	PAY_0	Verwachte uitleg
-Veilig	200000	0	Hoge kredietlimiet, geen achterstand, dus lagere default-kans.
-Midden	50000	1	Gematigd risico, model reageert gematigd.
-Risicovol	20000	2	Lage limiet + achterstand, dus hogere default-kans.
+for model, name in models.items():
+    print(f"{name}: {model.score(X_test, y_test)*100:.2f}%")
 
-- Als PAY_0 stijgt, neemt het risico meestal toe.
-- Als LIMIT_BAL lager is, zie je vaak een andere kansinschatting.
-- Ik toon nu drie situaties: veilig, gemiddeld en risicovol.
-- Zo zie je meteen hoe het model reageert op veranderende input.
-"""
-limit_balance = 200000   # <-- pas aan: 20000 / 50000 / 200000
-pay_0 = 0                # <-- pas aan: 0 (op tijd betaald) / 1 (1 maand achterstallig) / 2 (2 maanden achterstallig)
+# ROC and AUC
+model_svc = SVC(kernel='rbf', random_state=1234)
+model_svc.fit(X_train, y_train)
+y_pred_svm = model_svc.decision_function(X_test)
 
-# vaste voorbeeldwaarden voor de andere features
-demo = X.median(numeric_only=True).to_frame().T
-demo["LIMIT_BAL"] = limit_balance
-demo["PAY_0"] = pay_0
+model_logistic = LogisticRegression(max_iter=2000, random_state=1234)
+model_logistic.fit(X_train, y_train)
+y_pred_logistic = model_logistic.decision_function(X_test)
 
-# zorg dat alle kolommen aanwezig zijn
-for col in X.columns:
-    if col not in demo.columns:
-        demo[col] = 0
+logistic_fpr, logistic_tpr, _ = roc_curve(y_test, y_pred_logistic)
+auc_logistic = auc(logistic_fpr, logistic_tpr)
 
-demo = demo[X.columns]
-demo_scaled = pd.DataFrame(scaler.transform(demo), columns=X.columns)
+svm_fpr, svm_tpr, _ = roc_curve(y_test, y_pred_svm)
+auc_svm = auc(svm_fpr, svm_tpr)
 
-prob_default = model.predict_proba(demo_scaled)[0, 1]
-prediction = int(prob_default >= 0.5)
-
-print("\n=== DEMO INPUT ===")
-print(f"LIMIT_BAL = {limit_balance}")
-print(f"PAY_0     = {pay_0}")
-print("\n=== RESULTAAT ===")
-print(f"Voorspelde kans op default: {prob_default*100:.2f}%")
-print(f"Klassevoorspelling: {'DEFAULT' if prediction == 1 else 'GEEN DEFAULT'}")
-
-# =========================
-# 5. VISUELE GRAFIEK
-# =========================
-limit_values = np.linspace(max(10000, limit_balance - 100000), limit_balance + 100000, 200)
-probs = []
-
-for lb in limit_values:
-    row = X.median(numeric_only=True).to_frame().T
-    row["LIMIT_BAL"] = lb
-    row["PAY_0"] = pay_0
-    for col in X.columns:
-        if col not in row.columns:
-            row[col] = 0
-    row = row[X.columns]
-    row_scaled = pd.DataFrame(scaler.transform(row), columns=X.columns)
-    probs.append(model.predict_proba(row_scaled)[0, 1])
-
-plt.figure(figsize=(10, 6))
-sns.lineplot(x=limit_values, y=probs, color="navy", linewidth=2)
-plt.axvline(limit_balance, color="red", linestyle="--", label=f"Jouw LIMIT_BAL = {limit_balance}")
-plt.axhline(prob_default, color="green", linestyle="--", label=f"Kans = {prob_default*100:.2f}%")
-plt.scatter([limit_balance], [prob_default], color="black", zorder=5)
-plt.title("Effect van LIMIT_BAL op de voorspelde default-kans")
-plt.xlabel("LIMIT_BAL")
-plt.ylabel("Voorspelde kans op default")
+plt.figure(figsize=(5, 5), dpi=100)
+plt.plot(svm_fpr, svm_tpr, linestyle='-', label=f'SVM (auc = {auc_svm:.3f})')
+plt.plot(logistic_fpr, logistic_tpr, marker='.', label=f'Logistic (auc = {auc_logistic:.3f})')
+plt.plot([0, 1], [0, 1], linestyle='--', color='gray')
+plt.xlabel('False Positive Rate')
+plt.ylabel('True Positive Rate')
 plt.legend()
 plt.tight_layout()
 plt.show()
