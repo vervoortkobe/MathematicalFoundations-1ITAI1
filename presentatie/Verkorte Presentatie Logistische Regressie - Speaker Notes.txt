@@ -1,0 +1,299 @@
+Presentatie Mathematical Foundations
+------------------------------------
+* Kaggle Notebook: https://www.kaggle.com/code/keenoglanville/a-fool-s-complete-guide-to-logistic-regression/notebook
+
+* Slide 2
+	-Waarom deze Notebook:
+		-Zet logistische regressie af tov lineire regressie
+		-Zet logistische regressie in een ML context
+		-Behandelt aantal extra ML concepten zoals cross validation, confusion matrices,...
+	-Waarschuwing:
+		-Logistische regressie uitgebreide uitleggen zou minstens een uur in beslag nemen
+		-Het betreft hier dus een sterk verkorte presentatie
+		-Focus ligt in deze presentatie eerder op het conceptuele en het waarom van bepaalde aspecten van logistische regressie
+		-Moest iemand interesse hebben: er is een presentatie beschikbaar die dieper ingaat op de wiskunde
+
+* Slide 3
+	-Lineaire Regressie richt zich op het voorspellen van waardes
+	-Logistische Regressie richt zich op het classificeren van waardes. Meestal een binaire classificatie maar kan uitgebreid worden naar meerdere classificaties
+	-Er zijn een aantal elementen die belangrijk zijn bij een logistische regressie nl: sigmoïde, odds, logit functie, transformatie
+
+* Slide 4
+	-Belangrijk om een onderscheid te maken tussen Odds & Probability
+	-Probability = kans dat er iets gebeurt
+	-Odds = kansverhouding (verhouding!) tussen iets dat gebeurt en iets dat niet gebeurt
+	-Voorbeeld uitleggen
+
+* Slide 5
+	-Wanneer we een aantal mogelijke odds (kansverhoudingen) uitrekenen dan zien we een asymmetrie optreden
+	-Zie voorbeeld
+
+* Slide 6
+	-Asymmetrie = ongewenste situatie omdat de bekomen magnitudes verschillen als we niet meer doen dan de ratios gewoon omkeren (zie vorige slides)
+	-Wiskundigen trachten dit te vermijden en voor ML zal dit ook problemen geven als ML algoritmes asymmetrische getallen dienen te interpreteren -> leidt tot verkeerde conclusies
+	-Oplossing: we nemen het natuurlijk logaritme (grondtal e = 2.72) van de odds/kansverhoudingen
+	-We bekomen symmetrie!
+
+* Slide 7
+	-Zodus, ik herhaal: Log(odds) = log van (de kans dat er iets gebeurt p tov. kans dat er niets gebeurt 1-p)
+	
+* Slide 8
+	-Alvorens we de logistische regressie beginnen uit te leggen gaan we even heel kort de logistische regressie kaderen
+	-Logistische regressie behoort tot familie van modellen (Generalized Linear Models) die een aantal elementen abstraheren
+	-Logistische regressie is er één van naast de Lineire en de Poisson regressie
+	
+* Slide 9
+	-Een classificatie wordt hier uitgedrukt als een kans van 0 tot 1
+
+* Slide 10
+	-Waarom hebben we logistische regressie in de vorm van een sigmoïde nodig?
+	-Waarom geen gewone rechte lijn gebruiken voor classificatie zoals op vorige slide?
+	-Er zijn verschillende redenen waarbij de belangrijkste zijn:
+		-Omdat de kans dan 1 of kleiner dan 0 kan zijn in geval van een vergelijking van een rechte (projectie op Y-as)
+		-Outliers op X-as zouden al snel een grote invloed hebben op de richtingscoëfficiënt van de rechte
+		-...
+	-Waarom dan geen afgeplatte rechte aan beide kanten als alternatief?
+		-Geen onderscheid in kans meer vanaf bepaald punt
+		-Moeilijk te lineariseren (komen we seffens op terug)
+	-Uit realiteit blijkt dat Sigmoïde een goed instrument is voor classificatie
+
+* Slide 11
+	-Logistische regressie wordt uitgedrukt in de vorm van een sigmoïde die een binaire classificatie zal doen:
+		-Alle punten op de x-as waarvoor de y-waarde > 0.5 zullen als 1 geclassificeerd worden
+		-Alle punten op de x-as waarvoor de y-waarde < 0.5 zullen als 0 geclassificeerd worden
+
+* Slide 12
+	-We willen concepten uit standaard lineaire regressie toe kunnen passen voor logistische regressie (p-waarde, ANOVA,...)
+	-Probleem is dat waarden op de sigmoïde tussen 0 en 1 liggen
+	-Echter een lineair model impliceert waarden van -oneindig tot +oneindig en impliceert vergelijking y = ax + b
+	-We moeten dus transformatie toepassen
+		-Stap 1: van kans naar log(odds)
+		-Stap 2: lineair model toepassen
+		-Stap 3: terug naar kans converteren
+
+* Slide 13
+	-Om een lang verhaal kort te maken (ik verwijs naar de uitgebreidere presentatie voor de wiskundige afleidingen):
+		-We gaan logit(odds) lineariseren
+		-Uiteindelijke vergelijking wordt: ln(p(x) - 1-p(x)) = b0 + b1x
+		-We passen de waarden b0 en b1 aan (iteratief - zie verder)
+	-Daarna converteren we log(odds) terug naar probability op sigmoïde
+		-p(x) = 1 / (1 + e^-(b0 + b1x))
+
+* Slide 14
+	-We hebben de sigmoïde geconverteerd naar rechte (zie image)
+	-We moeten een manier vinden om de Loss te minimaliseren
+	-In een klassieke lineaire regressie zullen we de Loss berekenen aan de hand van de residuals
+	-We trachten de residuals te minimaliseren door a en b (iteratief) aan te passen in de functie y = a + bx
+	-Probleem: geen least squares mogelijk want punten liggen op plus/min oneindig en zodus kunnen we geen residuen berekenen
+	-Wiskundig wat kort door de bocht maar conceptueel correct
+
+* Slide 15
+	-Andere problemen met logistische regressie: zoals geen consensus over R² berekening
+	-Er is geen analytische oplossing zoals bij Lineaire Regressie
+
+* Slide 16
+	-Om de datapunten zo goed mogelijk te classificeren dienen we de vorm van de sigmoide aan te passen
+	-Aanpassen van a en b in de functie p(x) = 1 / (1 + e^-(a + bx))
+	-a verschuift de curve naar links / rechts (grote a = curve naar links)
+	-b bepaalt de steilheid van de curve (grote b = steilere curve)
+
+* Slide 17
+	-Oplossing: we gebruiken de Maximum Likelihood methodiek
+	-We passen a en b iteratief aan
+	-Dit is gewoon de toepassing van het Gradient Descent algoritme
+
+* Slide 18 & 19
+	-We converteren de waardes van de datapunten terug naar probabiliteiten die op de sigmoïde liggen ( p = 1 / (1 + e^-(a+bx)) )
+	-We berekenen het product van de 'probabiliteiten' van elk datapunt
+		-Dit wordt voorgesteld door de Pi-notatie   (analoog aan de Sigma notatie voor de optelling)
+	-Er wordt de log genomen want deze maakt een som van de producten
+		-Dit vormt een makkelijkere berekening
+		-Het vermijdt Numerieke Instabiliteit
+	-Na de log krijg je de cross entropy formule die je kent vanuit de cursus
+	-Deze functie dien je te minimaliseren
+	-Dit is uiteindelijk de kern van de logistische regressie
+
+* Slide 20
+	-Men kan ook meerdere predictors in een functie zetten
+	-Niet enkel a en b of enkel b0 of b1 maar b0, b1, b2,...
+	-b0,b1       -> classifier = punt op de x-as (0.5)
+	-b0,b1,b2    -> classifier = rechte
+	-b0,b1,b2,b3 -> classifier = plat vlak
+
+* Slide 21 & 22
+	-Toepassing Gradient Descent
+	-Vertrek vanuit de Loss functie en bereken de partiële afgeleiden
+	-Parameters a en b worden aangepast via de learning rate
+
+* Afsluitend: dit was een zeer korte samenvatting van Logistische Regressie
+
+Deel 2: slides Kobe Vervoort
+* Slide 23
+	-Tot hier heeft Jimmy de wiskundige basis uitgelegd. 
+	-Ik toon nu hoe die theorie in de notebook echt gebruikt wordt in code en op data. 
+	-Mijn focus ligt dus op het praktijkgedeelte: hoe de inputvariabelen door het model worden verwerkt en hoe kleine aanpassingen aan parameters de voorspelde kans veranderen.
+	-Belangrijk is dat dit geen losstaande demo is. 
+	-Alles wat we nu zien, bouwt verder op de sigmoïde functie, op lineaire combinaties van variabelen en op het idee dat logistische regressie uiteindelijk een kans tussen 0 en 1 	produceert.
+
+* Slide 24
+	-Jimmy heeft uitgelegd hoe logistische regressie mathematisch een kans modelleert. 
+	-Hier passen we dat toe op een dataset van 30.000 creditcardhouders, met als doel te voorspellen of iemand volgende maand in default gaat of niet.
+	-Dus het probleem is een binaire classificatie: klasse 0 betekent geen default, klasse 1 betekent wel default. 
+	-Dat maakt dit meteen een typisch voorbeeld van logistische regressie zoals we die ook in IT tegenkomen, bijvoorbeeld bij spamdetectie, fraudedetectie of kredietrisico.
+
+* Slide 25
+	-Onze computer begrijpt geen menselijke taal, alleen getallen. Onze dataset bevat 25 kolommen met informatie over 30.000 mensen.
+	-We werken met echte data. Elke rij is een klant, elke kolom een feature. Het doel is wiskundig bepalen of iemand zijn schuld gaat terugbetalen.
+	-De dataset bevat verschillende kenmerken van klanten, zoals kredietlimiet, leeftijd, betaalgeschiedenis, factuurbedragen en terugbetalingen. 
+	-Het target is default.payment.next.month, dus of de klant al dan niet in gebreke blijft bij de volgende betaling.
+	-Wiskundig gezien zijn dit onze invoervariabelen of features. 
+	-Samen vormen die voor elke klant één vector met waarden, en net die vector gebruikt het model om een voorspelling te maken.
+
+* Slide 26
+	-Jimmy’s formule a+bx vereist getallen. 
+	-Tekst zoals “opleiding” kunnen we niet zomaar in een sigmoid-functie stoppen. 
+	-Voordat we de sigmoid-formule kunnen toepassen, moeten we de data opschonen. 
+	-In IT noemen we dit data cleansing.
+	-Voor we kunnen trainen, moeten we de data eerst geschikt maken voor wiskundige verwerking. 
+	-Een model kan niet rechtstreeks werken met betekenisvolle categorieën als tekst; het moet alles als numerieke input krijgen.
+	-Dat is ook een mooie link met Mathematical Foundations: matrixbewerkingen en vectoroperaties vragen om getallen. 
+	-Zonder preprocessing kan de lineaire algebra onder het model eigenlijk niet correct uitgevoerd worden.
+
+* Slide 27
+	-Een cruciaal concept is one-hot encoding. 
+	-Als we “huwelijk” als 1, 2 en 3 laten staan, denkt ons model dat 3 meer is dan 1. 
+	-Wiskundig klopt dat niet voor een categorie. Daarom maken we aparte binaire kolommen. 
+	-Via one-hot encoding maken we van één categorie meerdere binaire kolommen, zodat de wiskunde elke categorie een eigen gewicht kan geven.
+	-Hier zien we one-hot encoding. 
+	-Categorieën zoals EDUCATION en MARRIAGE worden opgesplitst in meerdere 0/1-kolommen, zodat het model geen valse numerieke volgorde veronderstelt waar die er niet is.
+	-Dat is belangrijk, want anders zou het model bijvoorbeeld kunnen denken dat categorie 3 automatisch groter of beter is dan categorie 2 in een betekenisvolle wiskundige zin.
+	-Door one-hot encoding maken we van elke categorie een aparte binaire component in de invoervector.
+	-Hier kan ik dus expliciet teruggrijpen naar Jimmy: de vector die in de formule gaat, moet wiskundig correct zijn samengesteld, anders leert de logistische regressie op een 	verkeerde representatie.
+
+* Slide 28
+	-In ons notebook zie je de StandardScaler. Waarom? 
+		-Omdat de sigmoid-functie heel gevoelig is voor grote verschillen in input-ranges. 
+		-We trekken alles naar een gemiddelde van 0 met een standaardafwijking van 1. 
+		-Zonder scaling zou de enorme waarde van het kredietlimiet de leeftijd volledig wegcijferen in de berekening.
+	-Na encoding wordt de data ook geschaald met StandardScaler. Dat betekent dat features naar een vergelijkbare schaal worden gebracht.
+	-Waarom is dat nodig? 
+		-Omdat sommige variabelen, zoals kredietlimiet of factuurbedragen, veel grotere numerieke waarden hebben dan bijvoorbeeld leeftijd of een binaire indicator. 
+		-Zonder scaling zouden die grote waarden de optimalisatie te sterk beïnvloeden.
+	-Hier zit opnieuw een link met Jimmy’s deel over afgeleiden en optimalisatie: gradient-based training werkt stabieler wanneer de features op een vergelijkbare schaal zitten.
+
+* Slide 29
+	-Hier gebeurt de magie die Jimmy uitlegde: het algoritme zoekt iteratief naar de beste coëfficiënten om de likelihood te maximaliseren. 
+		-Met één regel code, model.fit, voert Python duizenden iteraties uit om die ideale parameters te vinden die de likelihood maximaliseren. 
+		-Nadat het model getraind is, krijgen we voor elke klant een getal tussen 0 en 1. Dat is de output van onze sigmoid-functie.
+	-We trainen niet op alle data tegelijk. We verdelen de data in meerdere stukken om te voorkomen dat het model de data simpelweg uit het hoofd leert.
+	-Een model dat te simpel is heeft een hoge bias. Een model dat te complex is reageert op ruis en heeft een hoge variance. 
+		-Logistische regressie zit vaak precies in die sweet spot.
+	-In deze stap wordt het model effectief getraind met LogisticRegression().fit(X_train, y_train).
+		-Achter die ene regel code zit de volledige wiskunde die Jimmy heeft uitgelegd: parameters worden zo aangepast dat de voorspellingen zo goed mogelijk overeenkomen met de 		echte labels.
+	-Conceptueel kun je zeggen: het model zoekt de beste coëfficiënten voor alle features in de lineaire combinatie, zodat de sigmoïde daarna goede kansen oplevert. 
+		-Dus de code is kort, maar mathematisch is dit exact waar de optimalisatie gebeurt.
+
+* Slide 30
+	-Nu gaan we kijken hoe die sigmoid-functie en die a+bx-formule eruitzien in een echte IT-toepassing. 
+		-Ik heb hier een Python-script geschreven dat onze dataset van 30.000 klanten inlaadt en een model traint.
+		-Laten we beginnen met een normale klant. Hij heeft een limiet van 20.000 euro en betaalt netjes op tijd. 
+	-Als we dit door de sigmoid halen, zien we een kans van slechts een paar procent op wanbetaling. Het model zegt dan dus: veilig.
+	-Deze grafiek toont hoe het logistische regressiemodel de kans op default aanpast wanneer ik één parameter verander. 
+		-De andere variabelen blijven vast, zodat je het effect van die ene wijziging duidelijk ziet.
+	-Dat doen we om het effect duidelijk zichtbaar te maken. Anders veranderen te veel factoren tegelijk en is het moeilijk om te zien waarom de kans precies stijgt of daalt.
+	-Nu toon ik het interactieve stuk. 
+		-In de demo veranderen we bewust slechts twee parameters: PAY_0, dus recente betaalachterstand, en LIMIT_BAL, de kredietlimiet. 
+		-Alle andere waarden houden we op vaste voorbeeldwaarden.
+
+* Slide 31
+	-Ik start met een relatief veilige klant: een hogere kredietlimiet en PAY_0 = 0, dus geen recente achterstand. Het model geeft dan een lagere kans op default.
+	-Daarna verhoog ik PAY_0 naar 1 of 2. Wat we zien, is dat de voorspelde kans stijgt. 
+		-Dat sluit aan bij Jimmy’s wiskundige uitleg: de lineaire score verandert, en doordat die door de sigmoïde gaat, verschuift ook de kans richting 1.
+	-Als ik daarnaast LIMIT_BAL verlaag, zien we opnieuw een verschuiving in de voorspelde kans. 
+		-In de grafiek zie je dat als een verandering op de curve: de positie van ons punt verschuift en dus verandert de output van het model.
+	-Belangrijk om erbij te zeggen: het model geeft niet meteen “ja” of “nee”, maar eerst een kans. 
+		-Pas daarna wordt via een grens, typisch 0.5, beslist in welke klasse het voorbeeld valt.
+	-Hier stijgt de kans, omdat de inputvector ongunstiger wordt voor het model.
+		-Jimmy toonde dat de sigmoïde vooral rond het midden gevoelig is; daarom kan een kleine parameterwijziging hier een duidelijk zichtbaar effect hebben.
+		-De code verandert maar twee waarden, maar wiskundig verandert daardoor de volledige lineaire combinatie vóór de sigmoïde.
+		-Wat we hier zien, is dus de praktische vertaling van calculus en lineaire algebra naar een echte voorspelling.”
+	-Jimmy heeft uitgelegd dat logistische regressie een lineaire combinatie van de input neemt en die door de sigmoïde stuurt. 
+		-In deze demo zien we dat concreet: als ik PAY_0 verhoog of LIMIT_BAL verlaag, verandert die lineaire score, en dus ook de kans op default. 
+		-De output blijft altijd tussen 0 en 1, precies door die sigmoïde functie. 
+		-Zo zie je dat de wiskunde van daarnet rechtstreeks terugkomt in wat het model hier voorspelt.
+
+* Slide 32
+	-We zien dat logistische regressie het uitstekend doet, bijna net zo goed als complexere modellen zoals Support Vector Machines.
+	-De notebook vergelijkt logistische regressie ook met SVM en een neuraal netwerk. 
+		-Op accuracy scoort SVM hier iets hoger dan logistische regressie, terwijl het neurale netwerk iets lager zit.
+		-Dat is een goed moment voor kritische nuance: logistische regressie is dus niet automatisch het best scorende model, maar wel een heel sterke baseline omdat het relatief 	snel, interpreteerbaar en mathematisch elegant is.
+	-Hoewel SVM hier een iets hogere accuracy heeft, kiezen we toch logistische regressie omdat het model beter uitlegbaar is en rechtstreeks kansen voorspelt. 
+		-Voor onze presentatie is dat belangrijk: we willen niet alleen een score tonen, maar ook begrijpen waarom de output verandert wanneer we parameters aanpassen.
+	-Dus betere accuracy betekent niet altijd automatisch betere keuze; het hangt ook af van interpretatie, eenvoud en aansluiting met de wiskundige uitleg.
+
+* Slide 33
+	-In IT is accuracy niet alles. Als niemand failliet gaat en mijn model zegt altijd “iedereen betaalt”, heb ik 100% accuracy maar een nutteloos model.
+	-Accuracy alleen is niet genoeg. Bij classificatie wil je ook weten welke fouten een model maakt, en daarvoor gebruik je bijvoorbeeld de confusion matrix.
+
+* Slide 34
+	-Wiskunde is nooit 100% zeker. De confusion matrix laat zien waar we fouten maakten: false positives en false negatives. 
+	-Hier koppelen we de voorspelling aan de werkelijkheid. 
+		-Voor een bank is een false negative, dus denken dat iemand betaalt terwijl dat niet zo is, veel duurder dan een false positive.
+	-Daaruit volgen begrippen als true positives, false positives, sensitivity en specificity. 
+	-De ROC-curve laat zien hoe het model presteert bij verschillende drempelwaarden, en de AUC vat dat samen in één score.
+
+* Slide 35
+	-Voor een bank is een wanbetaler missen veel duurder dan een goede klant weigeren. 
+	-We gebruiken wiskunde om deze balans te vinden. 
+		-Dit zijn de ratio’s die bepalen hoe streng ons model is afgesteld op de sigmoid-curve.
+
+* Slide 36
+	-De ROC-curve is het bewijs van kwaliteit. 
+		-De area under the curve, of AUC, vertelt ons hoe goed het model onderscheid maakt. 
+		-De ROC-curve zet de true positive rate af tegen de false positive rate. 
+	-Onze score van 0.73 is wiskundig gezien een zeer goede fit.
+	-In deze notebook ligt de AUC voor logistische regressie rond 0.732, wat toont dat het model wel degelijk onderscheidend vermogen heeft, ook al is het niet perfect.
+
+	-Op deze slide zien we de ROC-curve. 
+		-Die toont hoe goed het model positieve en negatieve gevallen van elkaar kan onderscheiden bij verschillende drempelwaarden. 
+		-Hoe dichter de curve bij linksboven ligt, hoe beter het model. 
+	-De AUC geeft dat samen in één score: hoe hoger die is, hoe beter de prestaties van het model.
+
+* Slide 37
+	-De kracht van deze methode is dat het niet een black box is zoals een neuraal netwerk. We kunnen de wiskunde nog steeds uitleggen aan de business.
+	-We kunnen de bank precies uitleggen waarom een klant geweigerd is op basis van de coëfficiënten.
+	-Een grote sterkte van logistische regressie is de interpreteerbaarheid. 
+		-Je krijgt niet alleen een classificatie, maar ook een kans, en je kunt inhoudelijk beter uitleggen waarom een bepaalde feature meespeelt.
+	-Daarnaast is het model efficiënt voor grote datasets en is het een sterke basis om binaire classificatie te begrijpen. 
+		-Juist omdat de koppeling tussen wiskunde en code hier zo duidelijk is, is dit didactisch een goede keuze.
+
+* Slide 38
+	-Wiskundig gaat dit model ervan uit dat de relatie tussen factoren lineair is. Als dat niet zo is, hebben we complexere modellen nodig zoals neurale netwerken.
+	-Geen enkel wiskundig model is perfect. Als de werkelijkheid niet log-lineair is, zal onze sigmoid-curve de mist in gaan.
+	-Er zijn ook beperkingen. Het model veronderstelt dat de relatie lineair is in de log-odds, en dat is in echte data niet altijd waar. Complexere patronen kunnen dus gemist worden.
+	-Bovendien kunnen outliers en sterke correlaties tussen variabelen problemen geven. Dus logistische regressie is krachtig, maar niet universeel de beste keuze.
+
+* Slide 39
+	-Door dit notebook te analyseren, zagen we dat machine learning niet alleen magie is, maar een strikte opeenvolging van wiskundige transformaties.
+	-Ik heb geleerd dat machine learning niet alleen code is, maar pure calculus. 
+		-Zonder de sigmoid-functie en gradient descent zou een bank vandaag de dag niet kunnen functioneren.
+	-Wat ik vooral geleerd heb, is dat de abstracte wiskunde uit de les echt zichtbaar wordt in code. 
+		-Begrippen zoals sigmoid, vectoren, afgeleiden en optimalisatie zijn hier geen theorie meer, maar bepalen concreet hoe de voorspelling verandert.
+	-Ook preprocessing bleek veel belangrijker dan ik eerst dacht. 
+		-Zonder encoding en scaling kan de achterliggende wiskunde niet goed werken, dus de kwaliteit van de input bepaalt mee de kwaliteit van het model.
+--------------------------------------------------------
+* Slide 40
+	-Kortom, logistische regressie is de perfecte balans tussen eenvoud en kracht. Logistische regressie is het fundament van moderne classificatie in IT.
+	-Als conclusie kunnen we zeggen dat logistische regressie een fundamenteel model is voor binaire classificatie. 
+		-In deze notebook zagen we hoe je van ruwe data via preprocessing, training en evaluatie tot een concrete voorspelling komt.
+	-De belangrijkste link met Mathematical Foundations is dat de theorie hier echt zichtbaar wordt in de praktijk. 
+		-De sigmoïde functie zet een lineaire combinatie van features om naar een kans tussen 0 en 1, en via optimalisatie worden de parameters zo gekozen dat het model zo goed 	mogelijk onderscheid maakt tussen de twee klassen.
+	-Wat voor ons ook belangrijk was, is dat logistische regressie niet alleen een label geeft, maar ook een interpreteerbare kans. 
+		-Daardoor is het een sterk en relevant model in IT-toepassingen zoals spamdetectie, fraudedetectie en risico-inschatting.
+	-Onze belangrijkste les uit deze analyse is dus: zonder de onderliggende wiskunde begrijp je de code minder goed, maar zonder de praktische implementatie blijft die wiskunde ook 	abstract. Net de combinatie van beide maakt dit model zo interessant.
+
+* Slide 41
+	-Dat was onze verkorte analyse van de notebook over logistische regressie. 
+	-We hopen dat duidelijk is geworden hoe de wiskundige basis en de praktische demo elkaar aanvullen.
+	-Zijn er nog vragen over de sigmoid-functie, de preprocessing, de demo, of over waarom logistische regressie hier wel of net niet de beste keuze is?
+	-Bedankt voor jullie aandacht. We beantwoorden graag vragen over zowel de wiskundige kant als de praktische demo.

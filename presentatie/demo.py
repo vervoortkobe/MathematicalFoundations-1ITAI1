@@ -7,9 +7,7 @@ from sklearn.linear_model import LogisticRegression
 from sklearn.preprocessing import StandardScaler
 from sklearn.model_selection import train_test_split
 
-# =========================
 # 1. DATA LOADEN
-# =========================
 data = pd.read_csv("UCI_Credit_Card.csv", sep=";")
 
 if data.iloc[0].astype(str).tolist()[:5] == ['ID', 'LIMIT_BAL', 'SEX', 'EDUCATION', 'MARRIAGE']:
@@ -30,9 +28,7 @@ if len(data.columns) == len(expected_columns):
 for col in data.columns:
     data[col] = pd.to_numeric(data[col], errors="coerce")
 
-# =========================
 # 2. PREPROCESSING
-# =========================
 def onehotencode(df, columndict):
     df = df.copy()
     for column, prefix in columndict.items():
@@ -60,9 +56,7 @@ def cleaner(df):
 
 X, y = cleaner(data)
 
-# =========================
 # 3. TRAINING
-# =========================
 X_train, X_test, y_train, y_test = train_test_split(
     X, y, train_size=0.7, random_state=1234, stratify=y
 )
@@ -77,10 +71,7 @@ model.fit(X_train, y_train)
 print(f"Train accuracy: {model.score(X_train, y_train)*100:.2f}%")
 print(f"Test accuracy:  {model.score(X_test, y_test)*100:.2f}%")
 
-# =========================
 # 4. INTERACTIEVE DEMO
-#    2 parameters aanpassen
-# =========================
 """
 Scenario	LIMIT_BAL	PAY_0	Verwachte uitleg
 Veilig	200000	0	Hoge kredietlimiet, geen achterstand, dus lagere default-kans.
@@ -118,9 +109,7 @@ print("\n=== RESULTAAT ===")
 print(f"Voorspelde kans op default: {prob_default*100:.2f}%")
 print(f"Klassevoorspelling: {'DEFAULT' if prediction == 1 else 'GEEN DEFAULT'}")
 
-# =========================
 # 5. VISUELE GRAFIEK
-# =========================
 limit_values = np.linspace(max(10000, limit_balance - 100000), limit_balance + 100000, 200)
 probs = []
 
