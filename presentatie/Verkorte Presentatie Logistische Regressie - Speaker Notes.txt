@@ -38,14 +38,9 @@ Presentatie Mathematical Foundations
 	-Zodus, ik herhaal: Log(odds) = log van (de kans dat er iets gebeurt p tov. kans dat er niets gebeurt 1-p)
 	
 * Slide 8
-	-Alvorens we de logistische regressie beginnen uit te leggen gaan we even heel kort de logistische regressie kaderen
-	-Logistische regressie behoort tot familie van modellen (Generalized Linear Models) die een aantal elementen abstraheren
-	-Logistische regressie is er één van naast de Lineire en de Poisson regressie
-	
-* Slide 9
 	-Een classificatie wordt hier uitgedrukt als een kans van 0 tot 1
 
-* Slide 10
+* Slide 9
 	-Waarom hebben we logistische regressie in de vorm van een sigmoïde nodig?
 	-Waarom geen gewone rechte lijn gebruiken voor classificatie zoals op vorige slide?
 	-Er zijn verschillende redenen waarbij de belangrijkste zijn:
@@ -57,12 +52,12 @@ Presentatie Mathematical Foundations
 		-Moeilijk te lineariseren (komen we seffens op terug)
 	-Uit realiteit blijkt dat Sigmoïde een goed instrument is voor classificatie
 
-* Slide 11
+* Slide 10
 	-Logistische regressie wordt uitgedrukt in de vorm van een sigmoïde die een binaire classificatie zal doen:
 		-Alle punten op de x-as waarvoor de y-waarde > 0.5 zullen als 1 geclassificeerd worden
 		-Alle punten op de x-as waarvoor de y-waarde < 0.5 zullen als 0 geclassificeerd worden
 
-* Slide 12
+* Slide 11
 	-We willen concepten uit standaard lineaire regressie toe kunnen passen voor logistische regressie (p-waarde, ANOVA,...)
 	-Probleem is dat waarden op de sigmoïde tussen 0 en 1 liggen
 	-Echter een lineair model impliceert waarden van -oneindig tot +oneindig en impliceert vergelijking y = ax + b
@@ -71,7 +66,7 @@ Presentatie Mathematical Foundations
 		-Stap 2: lineair model toepassen
 		-Stap 3: terug naar kans converteren
 
-* Slide 13
+* Slide 12
 	-Om een lang verhaal kort te maken (ik verwijs naar de uitgebreidere presentatie voor de wiskundige afleidingen):
 		-We gaan logit(odds) lineariseren
 		-Uiteindelijke vergelijking wordt: ln(p(x) - 1-p(x)) = b0 + b1x
@@ -79,7 +74,7 @@ Presentatie Mathematical Foundations
 	-Daarna converteren we log(odds) terug naar probability op sigmoïde
 		-p(x) = 1 / (1 + e^-(b0 + b1x))
 
-* Slide 14
+* Slide 13
 	-We hebben de sigmoïde geconverteerd naar rechte (zie image)
 	-We moeten een manier vinden om de Loss te minimaliseren
 	-In een klassieke lineaire regressie zullen we de Loss berekenen aan de hand van de residuals
@@ -87,22 +82,22 @@ Presentatie Mathematical Foundations
 	-Probleem: geen least squares mogelijk want punten liggen op plus/min oneindig en zodus kunnen we geen residuen berekenen
 	-Wiskundig wat kort door de bocht maar conceptueel correct
 
-* Slide 15
+* Slide 14
 	-Andere problemen met logistische regressie: zoals geen consensus over R² berekening
 	-Er is geen analytische oplossing zoals bij Lineaire Regressie
 
-* Slide 16
+* Slide 15
 	-Om de datapunten zo goed mogelijk te classificeren dienen we de vorm van de sigmoide aan te passen
 	-Aanpassen van a en b in de functie p(x) = 1 / (1 + e^-(a + bx))
 	-a verschuift de curve naar links / rechts (grote a = curve naar links)
 	-b bepaalt de steilheid van de curve (grote b = steilere curve)
 
-* Slide 17
+* Slide 16
 	-Oplossing: we gebruiken de Maximum Likelihood methodiek
 	-We passen a en b iteratief aan
 	-Dit is gewoon de toepassing van het Gradient Descent algoritme
 
-* Slide 18 & 19
+* Slide 17 & 18
 	-We converteren de waardes van de datapunten terug naar probabiliteiten die op de sigmoïde liggen ( p = 1 / (1 + e^-(a+bx)) )
 	-We berekenen het product van de 'probabiliteiten' van elk datapunt
 		-Dit wordt voorgesteld door de Pi-notatie   (analoog aan de Sigma notatie voor de optelling)
@@ -113,14 +108,14 @@ Presentatie Mathematical Foundations
 	-Deze functie dien je te minimaliseren
 	-Dit is uiteindelijk de kern van de logistische regressie
 
-* Slide 20
+* Slide 19
 	-Men kan ook meerdere predictors in een functie zetten
 	-Niet enkel a en b of enkel b0 of b1 maar b0, b1, b2,...
 	-b0,b1       -> classifier = punt op de x-as (0.5)
 	-b0,b1,b2    -> classifier = rechte
 	-b0,b1,b2,b3 -> classifier = plat vlak
 
-* Slide 21 & 22
+* Slide 20 & 21
 	-Toepassing Gradient Descent
 	-Vertrek vanuit de Loss functie en bereken de partiële afgeleiden
 	-Parameters a en b worden aangepast via de learning rate
