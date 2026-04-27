@@ -171,8 +171,8 @@ Deel 2: slides Kobe Vervoort
   -Rechts: Uitgestrekte vs. Zeer steile sigmoid (invloed van parameter b / slope)
   -De curve bepaalt direct de kans op default bij een specifieke LIMIT_BAL
 
-* Slide 31: Is Logistische Regressie de beste keuze?
-  -Vergelijking accuracy: Log Reg (81.14%), SVM (82.12%), Neural Network (80.81%)
+* Slide 31: Hoe weten we of het model echt werkt?
+  -Aan de hand van accuracy; dit geeft het procent correcte voorspellingen weer
   -Waarschuwing: Accuracy is misleidend bij ongebalanceerde data (als 90% altijd betaalt, is 90% score makkelijk)
   -Noodzaak om dieper te kijken via de Confusion Matrix
 
