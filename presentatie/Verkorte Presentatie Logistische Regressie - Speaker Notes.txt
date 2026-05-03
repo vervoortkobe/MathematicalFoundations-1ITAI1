@@ -124,107 +124,99 @@ Presentatie Mathematical Foundations
 
 ------------------------------------
 
-Deel 2: slides Kobe Vervoort
-* Slide 23: Van theorie naar praktijk
-  -Overgang van wiskundige basis (Jimmy) naar de praktische uitvoering in een notebook
-  -Gebruik van een real-world dataset: 30.000 creditcardhouders
+Deel 2: slides Kobe Vervoort (15)
+
+* Slide 23: Dataset: Onbewerkte informatie
+  -Sommige onderdelen van onze presentatie (zoals cross-validatie en one-hot encoding)zullen bekend voorkomen, omdat we die reeds in het vak ML Principles hebben gezien.
+  -Gebruik van een real-world dataset: 30.000 creditcardhouders met 25 features
   -Doel: voorspellen of een klant zijn rekening zal betalen (default = wanbetaling)
-  -Focus op hoe inputvariabelen door het model verwerkt worden tot een kans tussen 0 en 1
-
-* Slide 24: Dataset: Onbewerkte informatie
-  -Wat voeden we aan het model: features vs target
-  -Features: kredietlimiet, geslacht, opleiding, leeftijd en betaalgeschiedenis (PAY_X kolommen)
   -Target (y): Binaire waarde (0 = betaalt netjes, 1 = betaalt niet)
-  -Dit is een typisch IT-probleem: classificatie voor fraudedetectie of kredietrisico
 
-* Slide 25: Data Cleansing
+* Slide 24: Data Cleansing
   -Wiskunde vereist "nette" numerieke data (ordinaal & nominaal)
   -Computers kunnen niet rekenen met tekst; matrixbewerkingen vereisen cijfers
   -Introductie One-hot encoding: categorische waarden omzetten naar binaire kolommen
   -Voorbeeld 'Sex': voorkomen dat model denkt dat categorie 2 wiskundig "groter" is dan 1
 
-* Slide 26: Feature Scaling
+* Slide 25: Feature Scaling
   -Probleem: enorme verschillen in schaal (Leeftijd 20-80 vs. Limiet 1M)
   -Wiskundig risico: grote getallen domineren de gradient descent en maken model instabiel
   -Oplossing: Z-score normalisatie/standaardisatie
   -Gebruik van StandardScaler in Python om alles naar hetzelfde bereik te brengen
 
-* Slide 27: Cross-Validation
+* Slide 26: Cross-Validation
   -Opsplitsen van dataset in meerdere 'folds' (sets)
   -Model wordt herhaaldelijk getraind op verschillende delen van de data
   -Resultaat is stabieler dan één enkele train/test-split (minder afhankelijk van toeval)
   -Helpt bij het opsporen van overfitting en het voorkomen van data lekkage
 
-* Slide 28: Cross-Validation (Visueel)
-  -Uitleg van het schema: 6 folds in dit voorbeeld
-  -Elke fold dient één keer als test-set terwijl de rest als training-set dient
-  -Berekening van foutmarge per fold om tot een finale gemiddelde score te komen
-
-* Slide 29: Training: Gradient Descent
+* Slide 27: Training: Gradient Descent
   -Praktische uitvoering in code: train_test_split() en model.fit()
   -In de notebook vergelijken we verschillende modellen: Logistische Regressie, SVM en Neuraal Netwerk
   -Achter de fit() functie gebeurt de wiskunde van Jimmy: Maximum Likelihood en Gradient Descent om parameters te vinden
 
-* Slide 30: Vergelijking!
+* Slide 28: Vergelijking!
   -Visuele weergave van hoe de sigmoid-curve verandert door parameters aan te passen
   -Links: Normale vs. Verschoven sigmoid (invloed van parameter a)
-  -Rechts: Uitgestrekte vs. Zeer steile sigmoid (invloed van parameter b / slope)
-  -De curve bepaalt direct de kans op default bij een specifieke LIMIT_BAL
+  -Rechts: Uitgestrekte vs. zeer steile sigmoid (invloed van parameter b / slope)
+  -Als PAY_0 stijgt of LIMIT_BAL daalt, verschuift het punt richting een hogere default-kans
+  -De curve bepaalt direct de kans op default bij een specifieke combinatie van LIMIT_BAL en PAY_0
+  -Hoe steiler de sigmoid curve, hoe gevoeliger de voorspelling voor kleine veranderingen (projecties)
 
-* Slide 31: Hoe weten we of het model echt werkt?
+* Slide 29: Hoe weten we of het model echt werkt?
   -Aan de hand van accuracy; dit geeft het procent correcte voorspellingen weer
   -Waarschuwing: Accuracy is misleidend bij ongebalanceerde data (als 90% altijd betaalt, is 90% score makkelijk)
   -Noodzaak om dieper te kijken via de Confusion Matrix
 
-* Slide 32: Confusion Matrix
+* Slide 30: Confusion Matrix
   -Tool om fouten van het model te analyseren
   -TP (True Positive): Correct voorspeld dat iemand niet betaalt
   -FP (False Positive): Vals alarm (denken dat iemand niet betaalt, terwijl ze wel betalen)
   -Formules voor Specificity (echte negatieven) en Fall-out
 
-* Slide 33: Sensitivity & Specificity
+* Slide 31: Sensitivity & Specificity
   -Balans tussen "goed" en "kwaad"
   -Sensitivity: Hoeveel van de echte wanbetalers vinden we? (risico opsporen)
   -Specificity: Hoeveel goede betalers laten we onterecht niet door? (veilige klanten behouden)
   -Accuracy zegt enkel hoeveel je juist raadt, niet wélke fouten je maakt
 
-* Slide 34: ROC & AUC: De Area Under the Curve
+* Slide 32: ROC & AUC: De Area Under the Curve
   -ROC-curve: visualisatie van onderscheid tussen True Positives en False Positives
   -Hoe hoger de boog (richting linksboven), hoe beter het model
   -AUC (Area Under Curve): vat de prestatie samen in één getal (0.732 voor ons model)
   -Score boven 0.70 wordt wiskundig gezien als een goede fit
 
-* Slide 35: Is Logistische Regressie de beste keuze?
+* Slide 33: Is Logistische Regressie de beste keuze?
   -Hoewel SVM iets hogere accuracy heeft (82.12%), biedt Log Reg grote voordelen
   -Interpreteerbaarheid: we kunnen de coëfficiënten uitleggen aan de business (bank)
   -Output is niet alleen een klasse (0 of 1), maar een exacte kans
 
-* Slide 36: Sterktes
+* Slide 34: Sterktes
   -Snelheid: Zeer efficiënt, zelfs voor miljoenen rijen aan data
   -Interpreteerbaarheid: Welke factor (bv. AGE) weegt het zwaarst door?
   -Probabiliteit: Geeft nuance (bv. 85% kans op default ipv enkel "ja")
 
-* Slide 37: Zwaktes
+* Slide 35: Zwaktes
   -Lineairiteit: Faalt bij complexe, niet-lineaire verbanden in de data
   -Outliers: Gevoelig voor extreme uitschieters die de curve kunnen vervormen
   -Onafhankelijkheid: Variabelen die teveel op elkaar lijken verstoren de wiskundige betrouwbaarheid (correlatie)
 
-* Slide 38: Wat hebben we geleerd?
+* Slide 36: Wat hebben we geleerd?
   -Link tussen abstracte calculus (sigmoids) en financiële beslissingen
   -Cruciaal belang van data-preprocessing (scaling/encoding): garbage in/garbage out
   -Waarde van cross-validatie voor model-stabiliteit
   -Accuracy is slechts één onderdeel van het succes-verhaal
 
-* Slide 39: Conclusie
+* Slide 37: Conclusie
   -Logistische regressie is het fundament van moderne classificatie
   -Wiskundige parameters (a, b, c) bepalen direct de nauwkeurigheid van IT-systemen
   -Onmisbaar instrument voor elke Data Science professional
 
 ------------------------------------
 
-* Slide 40: Vragen?
+* Slide 38: Vragen?
   -Ruimte voor vragen over de sigmoid-functie, de dataset of de praktische demo
 
-* Slide 41: Resources
+* Slide 39: Resources
   -Overzicht van gebruikte bronnen (StatQuest, YouTube cursussen, documentatie)
   -Vermelding van AI-tools (ChatGPT/Gemini) voor ondersteuning bij analyse
